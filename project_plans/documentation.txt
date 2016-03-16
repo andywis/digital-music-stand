@@ -1,0 +1,25 @@
+DOCUMENTATION
+
+What is this?
+-------------
+The Digital Music Stand is a way of displaying music score using a
+monitor, rather than having bits of paper, which are usually in 
+the wrong order, or fall off at the wrong moment.
+
+The key concept is that you set up your "playlist" of music 
+beforehand, then you can display it, one item at a time. 
+You can use a computer monitor, or a laptop, if the screen isn't
+too small. 
+
+Then, to change pages, you hit a key on the keyboard. The left-hand
+letters are mapped to "go back" and the right-hand letters are mapped
+to "go forwards", so you don't need to be accurate when you're in the
+middle of playing something and need to "turn the page".
+
+
+
+Playlists
+------------
+This playlist_data will be kept in a file, eventually.
+Warmups first, then stuff you need to learn, then play
+something you do know

@@ -1,0 +1,121 @@
+Tasks:
+------
+P1: Ability to set different playlists.
+
+P3: Key presses don't work in Firefox (only in Chrome)
+
+
+
+/!\ Remove all non-copyright music from the Git repo. Completely purge!!
+    add a .gitignore in the static folder.
+
+/!\ Rebuild VENV -- it's broken. Can't install py.test. It needs an installer too.
+
+
+Tests: Needs some automated tests.
+
+Tests: Migrate the tests to py.tests (and tox?)
+
+Tests: add pep8 test to the tests.
+
+Move key-press key map to a separate file so it can be modified for users
+with a different keyboard layout. (possibly incl MacBook?)
+
+Launcher: How do you make a launcher that works in Gnome?
+	? http://unix.stackexchange.com/questions/156126/how-do-i-add-a-launcher-in-gnome-on-fedora-20
+
+Nav: make the "Prev" and "Next" buttons prettier (real buttons?)
+
+Add a Favicon
+
+Generate the image and the playlist from raw data.
+
+Bring "learn your scales" CGI in to the software (as an in-built 'app')
+
+Editing tools:
+	Use Imagemagick or pdftohtml to convert PDFs to PNGs automatically
+	e.g. http://superuser.com/questions/185880/how-to-convert-a-pdf-document-to-png
+
+
+Would be great to be able to use a USB Footswitch instead of the keyboard
+possibly investigate other hardware interfaces too. This might need an API
+that other devices could use to change page; may need websockets.
+
+DOCUMENT: The onkeypress event is not fired for all keys (e.g. ALT, CTRL,
+SHIFT, ESC) in all browsers, therefore, key presses only really work on
+letters and numbers.
+
+
+
+
+
+
+
+Complete:
+-----------
+Make the navigation strip cycle through the items in the playlist
+
+Add .gitignore (.pyc and .swp files)
+
+24/02/2016
+To be able to display a WHOLE page of sheet music on a screen; no scrolling.
+I added some CSS directives, and created a demo of "Buddy".
+
+Correct the sizes of the PNG images. max-width:75% isn't always right
+using CSS, as above
+
+02/03/2016
+Switch to key handlers to make it easier to move right and left.
+			You should be able to set it up so you can hit a key
+			to move forwards (And backwards) through the playlist.
+See tests/manual_tests/key-handler-2.html for the background.
+
+03/03/2016
+Load playlist from file
+
+12/03/2016
+	Add a Homepage
+	Nav doesn't know when to stop at -1 or len(list); make it calculate bounds.
+	Add an error handler page (try /p/999)
+	pre-fetch images on the next page into memory
+		https://perishablepress.com/3-ways-preload-images-css-javascript-ajax/
+		https://davidwalsh.name/html5-prefetch
+		https://css-tricks.com/prefetching-preloading-prebrowsing/
+
+	Launcher: How do you make the shell script launcher run the browser?
+
+13/03/2016
+	WONTFIX: Would be good to have the daemon running through Apache, always-on.
+
+	Review the "worship.php" files for any other ideas.
+    + remove worship.php when done.
+	The old PHP script "worship.php" was just a wrapper around a set of Youtube videos
+	to play. The data was:
+		[
+		  {"playlist_id": "1", "title": "Worship songs with Lyrics", "pl": [
+			{"id": "WrSwSG65ggY", "title": "Running - Hillsong Live (New 2012 DVD Album Cornerstone)"},
+			{"id": "-1zU-fQv6Uc", "title": "Endless Light - Hillsong Live New 2012 Album"},
+			{"id": "yg-B9uSNu-w", "title": "Hillsong - Saviour King (1:31)"},
+			{"id": "QvLxZEU02uI", "title": "Cornerstone - Cornerstone - Hillsong Live 2012"}
+		   ]
+		  },
+		  {"playlist_id": "2", "title":"Sax Jazz", "pl": [
+			{"id": "wgOlPTTol1M", "title": "Harlem Nocturne by Earle Hagen &quot;Dennis Memeo&quot; on Alto Saxo"},
+			{"id": "KROObzn04sE", "title": "Harlem Nocturne Blues Backing Track"}
+		  ]}
+		]
+
+    Design the file structure:
+	Filesystem structure in "static/"; each image in its own folder with metadata.
+	Directory name should be 7-bit version of the filename.
+		static/
+		    Blues_Scale_1/
+				meta.json           # holds the metadata about this file.
+				Blues_Scale_1.png
+		    Other_page/
+				meta.json
+				Other_page.png
+			A_local_html_resource:
+				meta.json
+				content.html
+

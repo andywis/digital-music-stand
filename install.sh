@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# TARGET=/usr/local/dms
+TARGET=/home/awa/src/DigiMusicStand/target_dir
+
+# TODO: Make sure $TARGET exists and is writable without sudo
+#  * [sudo] pip install virtualenv
+#  * [sudo] mkdir -p /usr/local/dms
+#
+# TODO: Test this script on an empty target_dir
+
+if [ ! -d $TARGET/venv ];
+then
+
+	if [ -z  `which virtualenv` ]
+    then
+		echo "INSTALL VIRTUALENV AND THEN COME BACK"
+		exit 1
+
+    echo "The virtual env is not set up. Will do that now"
+    cp pip_requirements.txt $TARGET/pip_requirements.txt
+	where_was_i=`pwd`
+    cd $TARGET
+	virtualenv venv
+    source venv/bin/activate
+    pip install -r $TARGET/pip_requirements.txt
+    rm $TARGET/pip_requirements.txt
+    cd $Where_was_i
+    echo "The virtual env should not be set up"
+
+else
+    source $TARGET/venv/bin/activate
+fi
+
+mkdir -p $TARGET/config  # where the playlists will be stored
+mkdir -p $TARGET/static  # where the images etc will be stored 
+
+cp run.py $TARGET/run.py
+cp -r dmslib $TARGET/dmslib
+cp -r templates $TARGET/templates
+cp tests/py $TARGET/tests.py  # optional

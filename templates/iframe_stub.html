@@ -1,0 +1,15 @@
+{% extends "base_page.html" %}
+{#
+#
+#	Link to an anchor within the page works: try
+#	src="http://www.wis.co.uk/sax/play-along/the-lords-my-shepherd-i-will-trust-in-you-in-f/#post-128"
+#
+#	Link to a full-page Youtube also works: try
+#	src="http://www.youtube.com/embed/WrSwSG65ggY"
+#
+#	N.B. The closing "iframe" tag is vital.
+#
+#}
+{% block full_screen_content %}
+<iframe class="web_page_container" frameborder="0" src="{{ url }}"></iframe>
+{% endblock %}
