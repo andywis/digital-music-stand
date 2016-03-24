@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# TARGET=/usr/local/dms
-TARGET=/home/awa/src/DigiMusicStand/target_dir
+TARGET=$HOME/.dms/digitalmusicstand
 
 # TODO: Make sure $TARGET exists and is writable without sudo
 #  * [sudo] pip install virtualenv
@@ -9,13 +8,23 @@ TARGET=/home/awa/src/DigiMusicStand/target_dir
 #
 # TODO: Test this script on an empty target_dir
 
-if [ ! -d $TARGET/venv ];
+mkdir -p $TARGET
+if [ ! -d $TARGET ]
+then
+	echo "Cannot create installation folder $TARGET"
+	echo "Exiting"
+	exit
+fi
+
+if [ ! -d $TARGET/venv ]
 then
 
 	if [ -z  `which virtualenv` ]
     then
 		echo "INSTALL VIRTUALENV AND THEN COME BACK"
+	echo "Exiting"
 		exit 1
+	fi
 
     echo "The virtual env is not set up. Will do that now"
     cp pip_requirements.txt $TARGET/pip_requirements.txt
@@ -25,7 +34,7 @@ then
     source venv/bin/activate
     pip install -r $TARGET/pip_requirements.txt
     rm $TARGET/pip_requirements.txt
-    cd $Where_was_i
+    cd $where_was_i
     echo "The virtual env should not be set up"
 
 else
@@ -38,4 +47,9 @@ mkdir -p $TARGET/static  # where the images etc will be stored
 cp run.py $TARGET/run.py
 cp -r dmslib $TARGET/dmslib
 cp -r templates $TARGET/templates
-cp tests/py $TARGET/tests.py  # optional
+cp tests.py $TARGET/tests.py  # optional
+
+# Copy the start script into $HOME
+# Note the ':' as the sed delimiter. Works unless $TARGET has a : in.
+cat start_dms.sh | sed -e "s:{{DMSHOME}}:$TARGET:" > $HOME/start_dms2.sh
+chmod +x $HOME/start_dms2.sh
