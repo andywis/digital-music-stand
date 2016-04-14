@@ -1,74 +1,96 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
 
-		<title>Digital Music Stand</title>
+        <title>Digital Music Stand</title>
 
-		{% if next_image %}
-		<!-- pre-fetch the image for the next page -->
-		<link rel="prefetch" href="{{next_image}}" />
-		{% endif %}
+        {% if next_image %}
+        <!-- pre-fetch the image for the next page -->
+        <link rel="prefetch" href="{{next_image}}" />
+        {% endif %}
 
-		<script>
+        <script>
 
-		handleKeyPress= function(event) {
-			// en_GB keyboard. Gap at 6,Y,G,H,B,N.
-			// space is also considered a "key that moves you right"
-			leftKeys = "`12345" + "qwert" + "asdf" + "\\zxcv";
+        handleKeyPress= function(event) {
+            // en_GB keyboard. Gap at 6,Y,G,H,B,N.
+            // space is also considered a "key that moves you right"
+            // arrow keys also do left and right as expected.
+            leftKeys = "12345" + "QWERT" + "ASDF" + "ZXCV";
+            leftCodes = [27, 112, 113, 114, 115,  // ESC, F1-F4
+                         223, 9, 20, 220,         // BACKTICK TAB CAPS-LOCK \ 
+                         37 ];                      // LEFT-ARROW
 
-			rightKeys = "7890-=" + "uiop[]" + "jkl;'#" + "nm,./" + " "
+            rightKeys = "7890=" + "UIOP" + "JKL;" + "NM" + " "
+            rightCodes = [173, 8, 219, 221, 13,   // BACKSPACE [ ] ENTER
+                          188, 190, 191,          // , . /
+                          186, 222, 163, 225,     // ; ' # ENTER ALT-GR 
+                          39 ];                   // RIGHT-ARROW
 
-			// Polyfilla for MSIE event handlers
-			if (window.event) {
-				event = window.event;
-			}
-			var typedChar = String.fromCharCode(event.keyCode);
+            if (navigator.userAgent.indexOf("Chrome") !== -1) {
+                // (possibly also in WebKit)
+                rightCodes.push(187);  // equals
+                rightCodes.push(189);  // minus
+                rightCodes.push(192);  // Apostrophe 
+            } else if (navigator.userAgent.indexOf("Firefox") !== -1) {
+                leftCodes.push(171);  // minus
+                leftCodes.push(192);  // backtick
+            }
+            // ignoredCodes = [ 16, 17, 93 ]      // SHIFT CTRL CONTEXT
+            // ----------------------------------------------------------------
 
-			if (leftKeys.indexOf(typedChar) !== -1) {
-				previousPage();
-			} else if (rightKeys.indexOf(typedChar) !== -1) {
-				nextPage();	
-			}
-			return false;
-		};
+            // Polyfilla for MSIE event handlers
+            if (window.event) {
+                event = window.event;
+            }
 
-		previousPage = function() {
-			location.href="/p/{{prev}}";
-		}
-		nextPage = function() {
+            var code = (typeof event.which == "number") ? event.which : event.keyCode;
+            var typedChar = String.fromCharCode(code);
+
+            if (leftKeys.indexOf(typedChar) !== -1 || leftCodes.indexOf(code) !== -1) {
+                previousPage();
+            } else if (rightKeys.indexOf(typedChar) !== -1 || rightCodes.indexOf(code) !== -1) {
+                nextPage();    
+            }
+            return false;
+        };
+
+        previousPage = function() {
+            location.href="/p/{{prev}}";
+        }
+        nextPage = function() {
             location.href="/p/{{next}}";
         }
-		</script>
+        </script>
 
-		<style>
-			iframe.web_page_container {
-				position:absolute;
-				top: 0px;
-				left: 0px;
-				width:100%;
-				height:100%;
-				overflow:none;
-				border: 0px solid red;
-			}
-			img.full_page_image {
-				max-width:75%
-			}
-		</style>
-	</head>
+        <style>
+            iframe.web_page_container {
+                position:absolute;
+                top: 0px;
+                left: 0px;
+                width:100%;
+                height:100%;
+                overflow:none;
+                border: 0px solid red;
+            }
+            img.full_page_image {
+                max-width:75%
+            }
+        </style>
+    </head>
 <body>
 
 {% block full_screen_content %}<hr>{% endblock %}
 
 <div style="position:absolute; top: 0px;right:30px; background-color: white;
-		    font-size:12px;font-weight:bold;font-family:sans-serif;">
-	<a onclick="previousPage();return false;" href="#previous">Prev</a> ||
+            font-size:12px;font-weight:bold;font-family:sans-serif;">
+    <a onclick="previousPage();return false;" href="#previous">Prev</a> ||
     <a onclick="nextPage();return false;" href="#next">Next</a>
 </div>
 
 <script>
-			document.body.onkeypress = handleKeyPress;
+            document.body.onkeydown = handleKeyPress;
 </script>
 </body>
 </html>

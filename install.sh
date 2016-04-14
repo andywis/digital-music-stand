@@ -42,11 +42,13 @@ else
 fi
 
 mkdir -p $TARGET/config  # where the playlists will be stored
-mkdir -p $TARGET/static  # where the images etc will be stored 
+mkdir -p $TARGET/static  # where the images etc will be stored
+mkdir -p $TARGET/dmslib  # where the images etc will be stored
+mkdir -p $TARGET/templates  # where the images etc will be stored
 
 cp run.py $TARGET/run.py
-cp -r dmslib $TARGET/dmslib
-cp -r templates $TARGET/templates
+cp -r dmslib/* $TARGET/dmslib
+cp -r templates/* $TARGET/templates
 cp tests.py $TARGET/tests.py  # optional
 
 # Copy the start script into $HOME

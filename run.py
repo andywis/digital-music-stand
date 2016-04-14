@@ -46,6 +46,14 @@ def show_page(page_num):
                                prev=previous_page_num,
                                next=next_page_num,
                                next_image=next_image)
+
+    elif pdata['type'] == 'LEARN_SCALES':
+            return render_template('learn_scales.html',
+                               url=pdata['path'],
+                               css_style=pdata['css_style'],
+                               prev=previous_page_num,
+                               next=next_page_num,
+                               next_image=next_image)
     else:
         message = ('<strong style="color:red;">ERROR: Could not '
                   'find any data for page {0}<br><br>'
