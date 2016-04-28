@@ -43,8 +43,9 @@ fi
 
 mkdir -p $TARGET/config  # where the playlists will be stored
 mkdir -p $TARGET/static  # where the images etc will be stored
-mkdir -p $TARGET/dmslib  # where the images etc will be stored
-mkdir -p $TARGET/templates  # where the images etc will be stored
+mkdir -p $TARGET/static/uploads  # where we upload to
+mkdir -p $TARGET/dmslib  # where the python libraries stored
+mkdir -p $TARGET/templates  # where the HTML templates will be stored
 
 cp run.py $TARGET/run.py
 cp -r dmslib/* $TARGET/dmslib
@@ -53,5 +54,5 @@ cp tests.py $TARGET/tests.py  # optional
 
 # Copy the start script into $HOME
 # Note the ':' as the sed delimiter. Works unless $TARGET has a : in.
-cat start_dms.sh | sed -e "s:{{DMSHOME}}:$TARGET:" > $HOME/start_dms2.sh
-chmod +x $HOME/start_dms2.sh
+cat start_dms.sh | sed -e "s:{{DMSHOME}}:$TARGET:" > $HOME/start_dms.sh
+chmod +x $HOME/start_dms.sh
