@@ -2,6 +2,29 @@ Tasks:
 ------
 P1: Ability to set different playlists.
 
+P1: Editor tools
+		[Y] make a page to show the files that have been uploaded (/uploads and /uploads/filename)
+			stored in path static/uploads/
+
+		[] make a form to allow you to add uploaded files to a "score" (may be several images)
+			 clicking 'save' will:
+			 (a) create a new folder in static/scores/${score_short_name}
+			 (b) move the selected images into it
+			 (c) create a metadata.json file in the same folder explaining the score images.
+
+		[] mame a form to allow you to construct/edit a playlist from a set of scores.
+			the initial version might just create the active_playlist.json in config/
+			maybe the playlist data should go in static/playlists (so everything's in static/)
+
+		[] make a page to allow you to upload a file
+
+		[] calculate sizes of images as you add them to a score; store in the metadata.
+
+		[] improve the CSS for buttons, forms, etc. Make it look more bootstrappy, but with
+		   minimal code.
+
+P2: Bring "learn your scales" CGI in to the software (as an in-built 'app')
+
 P3: Key presses don't work in Firefox (only in Chrome)
 
 
@@ -27,7 +50,6 @@ Add a Favicon
 
 Generate the image and the playlist from raw data.
 
-Bring "learn your scales" CGI in to the software (as an in-built 'app')
 
 Editing tools:
 	(0) Use pdftohtml to convert PDFs to PNGs automatically

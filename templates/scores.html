@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+        <title>Digital Music Stand</title>
+
+    </head>
+    <body>
+        <form method="post" action="">
+            <p>Available scores.</p>
+            <ul>
+            {% for score in scores_info %}
+                <li>{{ score.name }} ({{ score.num_files_str }}) <a href="#send">ADD</a></li>
+            {% endfor %}
+            </ul>
+            <hr>
+            
+        </form>
+        <p><a href="/uploads">See uploads</a></p>
+
+        <pre>{{ debug }}</pre> 
+    </body>
+</html>

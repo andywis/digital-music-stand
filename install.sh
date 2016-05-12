@@ -44,6 +44,8 @@ fi
 mkdir -p $TARGET/config  # where the playlists will be stored
 mkdir -p $TARGET/static  # where the images etc will be stored
 mkdir -p $TARGET/static/uploads  # where we upload to
+mkdir -p $TARGET/static/scores  # where scores are kept
+
 mkdir -p $TARGET/dmslib  # where the python libraries stored
 mkdir -p $TARGET/templates  # where the HTML templates will be stored
 

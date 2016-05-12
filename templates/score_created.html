@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+        <title>Digital Music Stand</title>
+
+    </head>
+    <body>
+        
+            Score <b>&quot;{{ score_name }}&quot;</b> successfully created.<br>
+            The following files were added to folder <tt>{{ score_dir }}</tt>
+            <ul>
+        	{% for file in files %}
+        		<li><a target="_blank" href="{{ prefix }}{{ file }}">{{ file }}</a></li>
+    	    {% endfor %}
+    		</ul>
+            <hr>
+            <p><a href="/uploads">See uploads</a></p>
+            <p><a href="/scores">See scores</a></p>
+
+		<pre>{{ debug}}</pre> 
+    </body>
+</html>

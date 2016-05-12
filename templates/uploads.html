@@ -8,12 +8,20 @@
 
     </head>
     <body>
-        <ul>
-    	{% for file in files %}
-    		<li><a href="{{ prefix }}{{ file }}">{{ file }}</a></li>
-	    {% endfor %}
-		</ul>
+        <form method="post" action="/create_score">
+            <p>Here are the files recently uploaded.</p>
+            <ul>
+        	{% for file in files %}
+        		<li><input type="checkbox" name="incl__{{ file }}"><a href="{{ prefix }}{{ file }}">{{ file }}</a></li>
+    	    {% endfor %}
+    		</ul>
+            <hr>
+            <p>Select the image files you want in this score, from the list above (tick to select)</p>
+            <p>Score name: <input type="text" name="score_name"></p>
+            <p><input type="submit" value="Create score"></p>
+        </form>
+        <p><a href="/scores">See scores</a></p>
 
-		<pre>{{ debug}}</pre>
+		<pre>{{ debug }}</pre> 
     </body>
 </html>

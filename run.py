@@ -1,14 +1,18 @@
 #!/usr/bin/env python
 
+import json
 import os
+import re
 
-from flask import (Flask,
-                   abort,
-                   send_from_directory,
+from flask import (Flask, 
+                   abort, 
+                   request, 
+                   send_from_directory, 
                    )
 from flask import render_template
 
 import dmslib.DigitalMusicStand
+import dmslib.utils as utils
 
 # ----------------------------------------------------------------------------
 #
@@ -38,13 +42,15 @@ import dmslib.DigitalMusicStand
 # We can then move them around later.
 PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, 'static', 'uploads')
+SCORES_FOLDER = os.path.join(PROJECT_ROOT, 'static', 'scores')
 
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['UPLOAD_URL_PREFIX'] = "static/uploads/"
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
-
+app.config['SCORES_FOLDER'] = SCORES_FOLDER
+app.config['SCORES_URL_PREFIX'] = "static/scores/"
 playlist = dmslib.DigitalMusicStand.DMSPlaylist()
 
 
@@ -104,8 +110,6 @@ def show_page(page_num):
 def uploads_listing():
     """ Directory listing for the uploads folder
     See http://stackoverflow.com/a/23724948/6097907
-
-
     """
     upload_folder = app.config['UPLOAD_FOLDER']
 
@@ -129,6 +133,103 @@ def uploaded_file(filename):
     """
     return send_from_directory(app.config['UPLOAD_FOLDER'],
                                filename)
+
+
+@app.route('/create_score', methods=['POST'])
+def create_score_from_uploads():
+    """ Handle the response from the "/uploads" form, creating
+    a new "score"
+
+    TODO: detect that the user entered a score_dir that's already
+    been used, and report a more user-friendly message.
+    """
+    # ensure app.config['SCORES_FOLDER'] exists. (should be
+    # created by the installer)
+    if not os.path.exists(app.config['SCORES_FOLDER']):
+        return abort(404)
+
+    if request.method == 'POST':
+        score_name = request.form['score_name']
+        score_dir = utils.get_file_safe_name(request.form['score_name'])
+
+        files_to_upload = utils.get_files_to_upload(request.form)
+
+        # create dir
+        try:
+            os.mkdir(os.path.join(app.config['SCORES_FOLDER'], score_dir))
+        except OSError:
+            # if the dir exists, complain
+            # TODO: complain in a more meaningful way
+            return abort(500)
+
+        # move the files.
+        #    TODO: Exception handling
+        utils.move_uploads_to_score_dir(
+            files_to_upload, 
+            old_folder=app.config['UPLOAD_FOLDER'], 
+            new_folder=os.path.join(app.config['SCORES_FOLDER'], score_dir))
+       
+
+        metadata = {
+            "score_name": score_name,
+            "score_dir": score_dir,
+            "files": files_to_upload,  # a list.
+        }
+        metadata_file = os.path.join(app.config['SCORES_FOLDER'], score_dir, "metadata.json")
+        with open(metadata_file, "w") as output_file:
+            json.dump(metadata, output_file, indent=4)
+
+        # TODO: test the modules in utils.
+
+        # TODO: return to uploads page with a message saying score_dir created.."
+        # return ("name={0}, dir={1}, {2}".format(score_name, score_dir, ' '.join(files_to_upload)))
+        return render_template('score_created.html',
+                               prefix=app.config['SCORES_URL_PREFIX'] + '/' + score_dir + "/",
+                               files=files_to_upload,
+                               score_name=score_name,
+                               score_dir=score_dir,
+                               debug="")
+
+    # else: what do we show on 'GET'?
+
+@app.route('/scores')
+def scores_listing():
+    """ Directory listing for the scores folder
+    """
+    scores_folder = app.config['SCORES_FOLDER']
+
+    # Return 404 if path doesn't exist
+    if not os.path.exists(scores_folder):
+        return abort(404)
+    
+    score_dirs = os.listdir(scores_folder)
+
+    scores_info = []
+    for sdir in score_dirs:
+        files = os.listdir(os.path.join(scores_folder, sdir))
+        # assume one file is metadata.json; we will ignore that
+        num_files = len(files) - 1
+        if num_files < 0:
+            num_files = 0
+
+        with open(os.path.join(scores_folder, sdir, "metadata.json"), 'r') as md:
+            metadata = json.load(md)
+        
+            score_name = metadata['score_name']
+            if num_files != len(metadata['files']):
+                print "Oops. Metadata does not match reality"
+
+            scores_info.append({"name": score_name, 
+                                "num_files": num_files,
+                                "num_files_str": utils.pluralise("%d file", "%d files", num_files)
+                                })
+
+
+    return render_template('scores.html',
+                           scores_info=scores_info,
+                           debug="")
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
