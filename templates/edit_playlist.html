@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+        <title>Digital Music Stand</title>
+
+    </head>
+    <body>
+        <form method="post" action="/create_score">
+            <p>Active Playlist</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+            <!-- for loop  :: load from active playlist -->
+                    <tr>
+                        <td>1</td>
+                        <td>python learn-scales example (Webpage)</td>
+                        <td><a href="#delete?id=1" title="delete">&#x2717;</a><!-- Unicode Character 'BALLOT X' (U+2717) --></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Learn those Scales (special)</td>
+                        <td><a href="#delete?id=2" title="delete">&#x2717;</a></td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>Blues Scale (1 page)</td>
+                        <td><a href="#delete?id=3" title="delete">&#x2717;</a></td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>Brother, Can You Spare A Dime (2 pages)</td>
+                        <td><a href="#delete?id=4" title="delete">&#x2717;</a></td>
+                    </tr>
+                    <tr>
+                        <td>5</td>
+                        <td>Happy Birthday To You (1 page)</td>
+                        <td><a href="#delete?id=5" title="delete">&#x2717;</a></td>
+                    </tr>
+
+            <!-- end for loop -->
+                </tbody>
+            </table>
+
+            <hr>
+            <p>
+                Choose item to insert: 
+                <select name="to_insert">
+                    <option>Scarborough Fair</option>
+                    <option>Will You Sax Solo</option>
+                    <option>Webpage ...</option>
+                    <option>Learn those Scales (widget) ...</option>
+                </select>
+                <input type="text" name="extra_info">
+            <p>
+            <p>
+                Insert 
+                <select name="insert_after">
+                    <option value="0">At the beginning</option>
+                    <option value="1">after 1 - pythn learn-scales example (Webpage)</option>
+                    <option value="2">after 2 - learn those scales (special)</option>
+                    <option value="3">after 3 - Blues Scales</option>
+                    <option value="4">after 4 - Brother, Can You Spare A Dime</option>
+                    <option value="5">after 5 - Happy Birthday To You</option>
+                </select>
+            </p>
+            <p><input type="submit" value="Save"></p>
+            <hr>
+            <p>
+                Save this playlist under a different name: <input type="submit" value="Save as">
+                <input type="text" name="save_as_name">
+                <!-- This will need some verification of playlist names.-->
+            </p>
+            <hr>
+            <p>
+                Load a previously saved playlist: <input type="submit" value="Load"> 
+                <select name="playlist_to_load">
+                    <option value="test_playlist_1">test_playlist_1</option>
+                    <option value="sue_s_concert">Sue's Concert</option>
+                    <option value="daily_practice">Daily Practice</option>
+                </select>
+            </p>
+            <p>
+                This will overwrite the active playlist above.
+            </p>
+            <hr>
+
+        </form>
+        <p><a href="/scores">See scores</a></p>
+
+        <pre>{{ debug }}</pre> 
+    </body>
+</html>

@@ -6,15 +6,17 @@ P1: Editor tools
 		[Y] make a page to show the files that have been uploaded (/uploads and /uploads/filename)
 			stored in path static/uploads/
 
-		[] make a form to allow you to add uploaded files to a "score" (may be several images)
+		[Y] make a form to allow you to add uploaded files to a "score" (may be several images)
 			 clicking 'save' will:
 			 (a) create a new folder in static/scores/${score_short_name}
 			 (b) move the selected images into it
 			 (c) create a metadata.json file in the same folder explaining the score images.
 
-		[] mame a form to allow you to construct/edit a playlist from a set of scores.
+		[] make a form to allow you to construct/edit a playlist from a set of scores.
 			the initial version might just create the active_playlist.json in config/
 			maybe the playlist data should go in static/playlists (so everything's in static/)
+
+				perhaps a line-by-line "edit playlist" form.
 
 		[] make a page to allow you to upload a file
 
