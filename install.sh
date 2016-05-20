@@ -52,7 +52,7 @@ mkdir -p $TARGET/templates  # where the HTML templates will be stored
 cp run.py $TARGET/run.py
 cp -r dmslib/* $TARGET/dmslib
 cp -r templates/* $TARGET/templates
-cp tests.py $TARGET/tests.py  # optional
+cp test_dms.py $TARGET/test_dms.py  # optional
 
 # Copy the start script into $HOME
 # Note the ':' as the sed delimiter. Works unless $TARGET has a : in.

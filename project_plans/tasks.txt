@@ -18,6 +18,14 @@ P1: Editor tools
 
 				perhaps a line-by-line "edit playlist" form.
 
+		[] Document it:
+				(1) upload a file
+				(2) turn the file into a score
+				(3) Add scores to a playlist.
+
+		[] short-term: make a shell-script tool to do PDF files
+
+
 		[] make a page to allow you to upload a file
 
 		[] calculate sizes of images as you add them to a score; store in the metadata.

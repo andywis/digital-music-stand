@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
+        <title>Digital Music Stand</title>
+
+        <style>
+            .example  {color: #aaa;}
+            .example input {opacity: 0.45; cursor: not-allowed;}
+            .example select {opacity: 0.45; cursor: not-allowed;}
+
+        </style>
+
+    </head>
+    <body>
+        <form method="post" action="/edit_playlist">
+            <p>Active Playlist</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pl in playlist_items %}
+                    <tr>
+                        <td>{{ pl.id }}</td>
+                        <td>{{ pl.name }} ({{ pl.type }})</td>
+                        {# The Cross is Unicode Character 'BALLOT X' (U+2717) #}
+                        <td><a href="/edit_playlist?action=delete&amp;id={{ pl.id }}">&#x2717;</a> </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <hr>
+            <p>
+                Choose item to insert: 
+                <select name="to_insert">
+                    {% for score in scores_info %}
+                        <option value="{{ score.dir }}">{{ score.name }} ({{ score.size_str }})</option>
+                    {% endfor %}
+                    <!-- add widgets, e.g. learn scales.-->
+                </select>
+                <input type="text" name="extra_info" style="display:none">{# for later #}
+            <p>
+            <p>
+                Insert 
+                <select name="insert_after">
+                    <option value="-1">At the beginning</option>
+                    {% for pl in playlist_items %}
+                    <option value="{{ pl.id }}">after {{ pl.id }} - {{ pl.name }} ({{ pl.type }})</option>
+                    {% endfor %}
+                </select>
+            </p>
+            <p><input type="submit" value="Save"></p>
+            <hr>
+
+            {# Save and Load playlists: to come later. #}
+            <p class="example">
+                Save this playlist under a different name: <input type="submit" value="Save as"  onclick="return false;">
+                <input type="text" name="save_as_name">
+                <!-- This will need some verification of playlist names.-->
+            </p>
+            <hr>
+            <p class="example">
+                Load a previously saved playlist: <input type="submit" value="Load" onclick="return false;"> 
+                <select name="playlist_to_load" onclick="return false;">
+                    <option value="test_playlist_1">test_playlist_1</option>
+                    <!--<option value="sue_s_concert">Sue's Concert</option>
+                    <option value="daily_practice">Daily Practice</option>-->
+                </select>
+            </p>
+            <p class="example">
+                This will overwrite the active playlist above.
+            </p>
+            <hr>
+
+        </form>
+        <p><a href="/uploads">See uploads</a> | <a href="/scores">See scores</a></p>
+
+        <pre>{{ debug }}</pre> 
+    </body>
+</html>

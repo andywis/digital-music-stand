@@ -3,11 +3,14 @@
 import json
 import os
 import re
+import urllib
 
-from flask import (Flask, 
-                   abort, 
-                   request, 
-                   send_from_directory, 
+from flask import (Flask,
+                   abort,
+                   redirect,
+                   request,
+                   send_from_directory,
+                   url_for,
                    )
 from flask import render_template
 
@@ -19,22 +22,13 @@ import dmslib.utils as utils
 # TODO
 #
 # 28/4/2016: we now have a way of showing the uploaded files
-#     * add buttons to add the uploaded files to the scores (if they're images)
-#     * think about how you might add several "pages" to a single "score"
 #     * need to add some meta-data about each img file
 #     * add buttons to preview the uploaded file.
 #  show the file listing with "preview" buttons next to each file,
 #  and a tickbox for each file
-#  The meta-data is after an <hr>, and applies to all the ticked
-#  files. The "save" button takes all the ticked files and moves them
-#  to static/scores/<folder_with_unique_name>, with a metadata.json
-#  file.
 #
 #     * (later?) upload a PDF and process it - it creates several files
 #  which can then hook into the above process.
-#
-#     * once we have files in static/scores, we can list the scores
-#  and make a form to create a playlist.
 #
 
 # Static folder layout:
@@ -51,7 +45,7 @@ app.config['UPLOAD_URL_PREFIX'] = "static/uploads/"
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 app.config['SCORES_FOLDER'] = SCORES_FOLDER
 app.config['SCORES_URL_PREFIX'] = "static/scores/"
-playlist = dmslib.DigitalMusicStand.DMSPlaylist()
+
 
 
 # /static/*
@@ -65,6 +59,7 @@ def hello_world():
 
 @app.route('/p/<int:page_num>')
 def show_page(page_num):
+    playlist = dmslib.DigitalMusicStand.DMSPlaylist()
     pdata = playlist.get_page_data(page_num)
 
     requested_page_num = page_num
@@ -182,7 +177,6 @@ def create_score_from_uploads():
         # TODO: test the modules in utils.
 
         # TODO: return to uploads page with a message saying score_dir created.."
-        # return ("name={0}, dir={1}, {2}".format(score_name, score_dir, ' '.join(files_to_upload)))
         return render_template('score_created.html',
                                prefix=app.config['SCORES_URL_PREFIX'] + '/' + score_dir + "/",
                                files=files_to_upload,
@@ -219,15 +213,99 @@ def scores_listing():
             if num_files != len(metadata['files']):
                 print "Oops. Metadata does not match reality"
 
-            scores_info.append({"name": score_name, 
-                                "num_files": num_files,
-                                "num_files_str": utils.pluralise("%d file", "%d files", num_files)
-                                })
+            scores_info.append(
+                {"name": score_name, 
+                 "num_files": num_files,
+                 "num_files_str": utils.pluralise("%d file", "%d files", num_files)
+                 })
 
 
     return render_template('scores.html',
                            scores_info=scores_info,
                            debug="")
+
+@app.route('/playlist', methods=['GET'])
+def show_playlist():
+    """ Show the current playlist in an editor """
+    scores_folder = app.config['SCORES_FOLDER']
+
+
+    # Return 404 if path doesn't exist
+    if not os.path.exists(scores_folder):
+        return abort(404)
+
+    score_dirs = os.listdir(scores_folder)
+
+    # List all the available scores
+    # TODO: create a subroutine for this. looks the same as above
+    scores_info = []
+    for sdir in score_dirs:
+        files = os.listdir(os.path.join(scores_folder, sdir))
+
+        with open(os.path.join(scores_folder, sdir, "metadata.json"), 'r') as md:
+            metadata = json.load(md)
+            # TODO: Verify that score_dr == sdir and warn if not.
+            size_str = utils.pluralise("%d page", "%d pages", 
+                                       len(metadata['files']))
+            scores_info.append({'dir': metadata['score_dir'], 
+                                'name': metadata['score_name'],
+                                'size_str': size_str})
+
+    # List the items in the current playlist
+    playlist = dmslib.DigitalMusicStand.DMSPlaylist()
+    playlist_items = []
+    for i in range(0, playlist.get_last_page_number()+1):
+        data = playlist.get_page_data(i)
+        playlist_items.append({'id': i,
+                               'path': urllib.quote(data['path']),  # TODO: urlencode
+                               'type': data['type'],
+                               'name': data['name'],
+                               # TODO: playlist items need the score name or dir recorded, 
+                               # TODO: add the page number of the score.
+                               #    e.g. "Brother CYSMAD (2 pages)" instead of "Brother (image)"
+                
+                              })
+
+    return render_template('playlist.html',
+                           scores_info=scores_info,
+                           playlist_items=playlist_items,
+                           debug='')
+
+
+@app.route('/edit_playlist', methods=['GET', 'POST'])
+def edit_playlist():
+    """ handle editing of the playlist
+
+    GET with action=delete & id=NNNN will delete item NNNN
+    POST with suitable parameters will insert.
+    """
+
+    if request.method == 'GET':
+        action = request.args.get('action')
+        if action and action == "delete":
+            # Handle delete of a playlist row.
+            row_id = request.args.get('id')
+            playlist = dmslib.DigitalMusicStand.DMSPlaylist()
+            playlist.delete_item(row_id, return_json=False, save=True)
+
+            return redirect(url_for('show_playlist'))
+
+        return abort(404)  # incorrect GET data
+
+    if request.method == 'POST':
+        # Handle the post data; insert a score into the playlist.
+        # data to add:
+        # {"type": "image",
+        # "path": location of JPG in static/scores,
+        # "css": "max-width: 100%", (depends on image dimensions)
+        # "name": name of score (page N)
+        # }
+
+        # score name is POST['to_insert']
+        # location is POST['insert_after'] (an integer) -1 means the start. 0 = after 1st element.
+        pass
+
+
 
 
 

@@ -1,0 +1,22 @@
+[
+   
+   {"type": "image",
+     "path": "first_entry.png",
+     "css": "color: orange",
+     "name": "Brother, Can You Spare A Dime"},
+
+    {"type": "image",
+     "path": "second_entry.png",
+     "css": "color:red",
+     "name": "Blues Scales"},
+
+    {"type": "image",
+     "path": "third_entry.png",
+     "css": "color: yellow",
+     "name": "Happy Birthday"},
+
+    {"_Comment_": "Last item is a web page. ",
+     "type": "webpage",
+     "path": "http://www.example.com/fourth_entry.html"}
+
+]
