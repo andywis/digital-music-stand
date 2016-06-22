@@ -16,6 +16,7 @@ from flask import render_template
 
 import dmslib.DigitalMusicStand
 import dmslib.utils as utils
+import dmslib.score as score
 
 # ----------------------------------------------------------------------------
 #
@@ -190,54 +191,37 @@ def create_score_from_uploads():
 def scores_listing():
     """ Directory listing for the scores folder
     """
-    scores_folder = app.config['SCORES_FOLDER']
-
     # Return 404 if path doesn't exist
-    if not os.path.exists(scores_folder):
+    if not score.scores_folder_exists(app):
         return abort(404)
     
-    score_dirs = os.listdir(scores_folder)
-
     scores_info = []
-    for sdir in score_dirs:
-        files = os.listdir(os.path.join(scores_folder, sdir))
-        # assume one file is metadata.json; we will ignore that
-        num_files = len(files) - 1
-        if num_files < 0:
-            num_files = 0
-
-        with open(os.path.join(scores_folder, sdir, "metadata.json"), 'r') as md:
-            metadata = json.load(md)
-        
-            score_name = metadata['score_name']
-            if num_files != len(metadata['files']):
-                print "Oops. Metadata does not match reality"
-
-            scores_info.append(
-                {"name": score_name, 
-                 "num_files": num_files,
-                 "num_files_str": utils.pluralise("%d file", "%d files", num_files)
-                 })
+    scores = score.get_all_scores(app, perform_integrity_checks=True)
+    for key in score.get_all_scores(app, perform_integrity_checks=True):
+        num_files = scores[key]['num_files']
+        scores_info.append(
+            {"name": key, 
+             "num_files": num_files,
+             "num_files_str": utils.pluralise("%d file", "%d files", num_files)})
 
 
     return render_template('scores.html',
                            scores_info=scores_info,
-                           debug="")
+                           debug='')
 
 @app.route('/playlist', methods=['GET'])
 def show_playlist():
     """ Show the current playlist in an editor """
-    scores_folder = app.config['SCORES_FOLDER']
-
+    scores_folder = score.get_scores_folder(app)
 
     # Return 404 if path doesn't exist
-    if not os.path.exists(scores_folder):
+    if not score.scores_folder_exists(app):
         return abort(404)
 
     score_dirs = os.listdir(scores_folder)
 
     # List all the available scores
-    # TODO: create a subroutine for this. looks the same as above
+    # TODO: create a subroutine for this. see scores_listing above
     scores_info = []
     for sdir in score_dirs:
         files = os.listdir(os.path.join(scores_folder, sdir))
@@ -300,10 +284,22 @@ def edit_playlist():
         # "css": "max-width: 100%", (depends on image dimensions)
         # "name": name of score (page N)
         # }
+        debug_html = "<body>"
+        # TODO: Create an entry for a playlist (we should have a method for that)
+        score_page_data = {"type":"image", "css": "background-color:yellow"}
+        score_page_data['path'] = 'x'
+        score_page_data['name'] = 'y'
+        debug_html += "<pre>" + json.dumps(score_page_data) + "</pre><br>"
+        for field in ["to_insert", "insert_after"]:
+            debug_html += "POST {!r} = {!r}<br>".format(field, request.form[field])
+
+        # TODO need a routine in score.xxx to find all the images to be copied, 
+        # given a Score_dir called "to_insert"
+
 
         # score name is POST['to_insert']
         # location is POST['insert_after'] (an integer) -1 means the start. 0 = after 1st element.
-        pass
+        return debug_html
 
 
 

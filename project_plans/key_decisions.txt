@@ -1,0 +1,16 @@
+
+1. Flask
+    I wanted to use Python, and Flask or Django seemed like 
+    good options. Django seemed a bit heavyweight, and mandates
+    the use of an Apache Front end in production, which isn't
+    relevant here, as we intend to only serve to "localhost"
+
+2. Add a score to the playlist as a set of pages
+    Adding a score (which may consist of several pages)
+    to a playlist adds each page in turn. I deliberated for
+    ages about whether a playlist should be a list of scores
+    or a list of pages, and had to decide one way or the other.
+    Hopefully there should be enough metadata being going to
+    the browser to improve the UI on this. It also allows you
+    to insert one score inside another, if that's really what
+    you want to do.
