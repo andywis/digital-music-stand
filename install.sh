@@ -41,17 +41,14 @@ else
     source $TARGET/venv/bin/activate
 fi
 
-mkdir -p $TARGET/config  # where the playlists will be stored
-mkdir -p $TARGET/static  # where the images etc will be stored
-mkdir -p $TARGET/static/uploads  # where we upload to
-mkdir -p $TARGET/static/scores  # where scores are kept
+mkdir -p $TARGET/dms  # where the flask app is stored
+mkdir -p $TARGET/dms/config  # where the playlists will be stored
+mkdir -p $TARGET/dms/static  # where the images etc will be stored
+mkdir -p $TARGET/dms/static/uploads  # where we upload to
+mkdir -p $TARGET/dms/static/scores  # where scores are kept
 
-mkdir -p $TARGET/dmslib  # where the python libraries stored
-mkdir -p $TARGET/templates  # where the HTML templates will be stored
-
-cp run.py $TARGET/run.py
-cp -r dmslib/* $TARGET/dmslib
-cp -r templates/* $TARGET/templates
+cp runserver.py $TARGET/runserver.py
+cp -r dms/* $TARGET/dms
 cp test_dms.py $TARGET/test_dms.py  # optional
 
 # Copy the start script into $HOME

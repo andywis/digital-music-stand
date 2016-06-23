@@ -21,4 +21,4 @@ launch_browser "http://127.0.0.1:5000/"
 cd {{DMSHOME}}
 # activate the VENV
 source venv/bin/activate
-python ./run.py
+python ./runserver.py

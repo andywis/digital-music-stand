@@ -1,53 +1,16 @@
-#!/usr/bin/env python
 
 import json
 import os
 import re
 import urllib
 
-from flask import (Flask,
-                   abort,
-                   redirect,
-                   request,
-                   send_from_directory,
-                   url_for,
-                   )
-from flask import render_template
-
+from flask import (Flask, abort, redirect, request, render_template,
+                   send_from_directory, url_for)
 import dmslib.DigitalMusicStand
 import dmslib.utils as utils
 import dmslib.score as score
 
-# ----------------------------------------------------------------------------
-#
-# TODO
-#
-# 28/4/2016: we now have a way of showing the uploaded files
-#     * need to add some meta-data about each img file
-#     * add buttons to preview the uploaded file.
-#  show the file listing with "preview" buttons next to each file,
-#  and a tickbox for each file
-#
-#     * (later?) upload a PDF and process it - it creates several files
-#  which can then hook into the above process.
-#
-
-# Static folder layout:
-# Uploads get put into "static/uploads",
-# We can then move them around later.
-PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, 'static', 'uploads')
-SCORES_FOLDER = os.path.join(PROJECT_ROOT, 'static', 'scores')
-
-
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['UPLOAD_URL_PREFIX'] = "static/uploads/"
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
-app.config['SCORES_FOLDER'] = SCORES_FOLDER
-app.config['SCORES_URL_PREFIX'] = "static/scores/"
-
-
+from dms import app
 
 # /static/*
 # No need for a routing rule for static files;
@@ -300,22 +263,3 @@ def edit_playlist():
         # score name is POST['to_insert']
         # location is POST['insert_after'] (an integer) -1 means the start. 0 = after 1st element.
         return debug_html
-
-
-
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
-
-"""
-Further Documentation
-
-Flask Tutorial is here:
-http://flask.pocoo.org/docs/0.10/quickstart/#quickstart
-
-Docstring convention is
-https://sphinxcontrib-napoleon.readthedocs.org/
-en/latest/example_google.html#example-google
-
-"""
