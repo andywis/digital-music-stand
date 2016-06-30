@@ -14,6 +14,7 @@ class DMSPlaylist(object):
             file. Usually, this should be None, to use the default,
             but can be specified for testing purposes
         """
+        print "   --- THIS IS THE DEPRECATED Playlist object ---"
         if config_filename:
             assert os.path.exists(config_filename)
         else:

@@ -8,9 +8,9 @@ from flask import (Flask, abort, redirect, request, render_template,
                    send_from_directory, url_for)
 import dmslib.DigitalMusicStand
 import dmslib.utils as utils
-import dmslib.score as score
 
 from dms import app
+import dms.models
 
 # /static/*
 # No need for a routing rule for static files;
@@ -101,6 +101,8 @@ def create_score_from_uploads():
 
     TODO: detect that the user entered a score_dir that's already
     been used, and report a more user-friendly message.
+
+    TODO: use models.Score to create the metadata.
     """
     # ensure app.config['SCORES_FOLDER'] exists. (should be
     # created by the installer)
@@ -155,17 +157,18 @@ def scores_listing():
     """ Directory listing for the scores folder
     """
     # Return 404 if path doesn't exist
-    if not score.scores_folder_exists(app):
+    if not dms.models.Score.scores_folder_exists():
         return abort(404)
     
     scores_info = []
-    scores = score.get_all_scores(app, perform_integrity_checks=True)
-    for key in score.get_all_scores(app, perform_integrity_checks=True):
-        num_files = scores[key]['num_files']
+    scores = dms.models.Score.get_all_scores(perform_integrity_checks=True)
+    print("%r" % scores)
+    for score in scores:
+        print type(score)
         scores_info.append(
-            {"name": key, 
-             "num_files": num_files,
-             "num_files_str": utils.pluralise("%d file", "%d files", num_files)})
+            {"name": score.name, 
+             "num_files": score.num_files,
+             "num_files_str": utils.pluralise("%d file", "%d files", score.num_files)})
 
 
     return render_template('scores.html',
@@ -175,28 +178,22 @@ def scores_listing():
 @app.route('/playlist', methods=['GET'])
 def show_playlist():
     """ Show the current playlist in an editor """
-    scores_folder = score.get_scores_folder(app)
+    scores_folder = dms.models.Score.get_scores_folder()
 
     # Return 404 if path doesn't exist
-    if not score.scores_folder_exists(app):
+    if not dms.models.Score.scores_folder_exists():
         return abort(404)
 
     score_dirs = os.listdir(scores_folder)
 
     # List all the available scores
-    # TODO: create a subroutine for this. see scores_listing above
     scores_info = []
-    for sdir in score_dirs:
-        files = os.listdir(os.path.join(scores_folder, sdir))
-
-        with open(os.path.join(scores_folder, sdir, "metadata.json"), 'r') as md:
-            metadata = json.load(md)
-            # TODO: Verify that score_dr == sdir and warn if not.
-            size_str = utils.pluralise("%d page", "%d pages", 
-                                       len(metadata['files']))
-            scores_info.append({'dir': metadata['score_dir'], 
-                                'name': metadata['score_name'],
-                                'size_str': size_str})
+    scores = dms.models.Score.get_all_scores(perform_integrity_checks=True)
+    for score in scores:
+        size_str = utils.pluralise("%d page", "%d pages", score.num_files)
+        scores_info.append({'dir': score.folder_name, 
+                            'name': score.name,
+                            'size_str': size_str})
 
     # List the items in the current playlist
     playlist = dmslib.DigitalMusicStand.DMSPlaylist()
@@ -241,25 +238,53 @@ def edit_playlist():
 
     if request.method == 'POST':
         # Handle the post data; insert a score into the playlist.
-        # data to add:
-        # {"type": "image",
-        # "path": location of JPG in static/scores,
-        # "css": "max-width: 100%", (depends on image dimensions)
-        # "name": name of score (page N)
-        # }
+        # [Y] work out which score to insert
+        # [Y] turn the score into a list of images
+        # [Y] Turn each image into a playlist entry (we now have a method for that)
+        # [] TODO: add the playlist entries to the playlist, in the correct place
+        # [] TODO: Test all the above with a score with 2 or 3 pages.
+
         debug_html = "<body>"
-        # TODO: Create an entry for a playlist (we should have a method for that)
-        score_page_data = {"type":"image", "css": "background-color:yellow"}
-        score_page_data['path'] = 'x'
-        score_page_data['name'] = 'y'
-        debug_html += "<pre>" + json.dumps(score_page_data) + "</pre><br>"
-        for field in ["to_insert", "insert_after"]:
-            debug_html += "POST {!r} = {!r}<br>".format(field, request.form[field])
 
-        # TODO need a routine in score.xxx to find all the images to be copied, 
-        # given a Score_dir called "to_insert"
+        playlist = dms.models.Playlist()
+        items = []
 
+        # TODO: ensure request.form['insert_after'] is an integer and is in range.
+        
+        # Find all the images to be copied, given a Score_dir called "to_insert"
+        score_to_insert = dms.models.Score.get_score_by_folder_name(
+            request.form['to_insert'])
+        num_images = score_to_insert.num_files
+        
+        # print "epl_1"
+        # print "%r" % score_to_insert.files
+        # print "%r" % enumerate(score_to_insert.files)
+        for i, image in enumerate(score_to_insert.files):
+            # print "epl_2"
+            if num_images > 1:
+                image_name = "%s (Page %d)" % (score_to_insert.name, i)
+            else:
+                image_name = score_to_insert.name
+
+            full_img_url = score_to_insert.url_prefix + "/" + image
+                
+            debug_html += "{type:image, path: %s, css:'x', name: %s}<br>" % (
+                score_to_insert.url_prefix + "/" + image, 
+                image_name)
+
+            item = playlist.create_playlist_item(
+                img_url=full_img_url, label=image_name)
+
+            debug_html += "<br>" + repr(item) + "<br>"
+
+            items.append(item)
+
+        playlist.add_items_to_playlist(items, request.form['insert_after'])
 
         # score name is POST['to_insert']
         # location is POST['insert_after'] (an integer) -1 means the start. 0 = after 1st element.
+        debug_html += "<br>"
+        for field in ["to_insert", "insert_after"]:
+            debug_html += "POST {!r} = {!r}<br>".format(field, request.form[field])
+
         return debug_html

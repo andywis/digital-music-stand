@@ -34,10 +34,10 @@ UPLOAD_FOLDER = os.path.join(PROJECT_ROOT, 'static', 'uploads')
 SCORES_FOLDER = os.path.join(PROJECT_ROOT, 'static', 'scores')
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['UPLOAD_URL_PREFIX'] = "static/uploads/"
+app.config['UPLOAD_URL_PREFIX'] = "/static/uploads/"
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 app.config['SCORES_FOLDER'] = SCORES_FOLDER
-app.config['SCORES_URL_PREFIX'] = "static/scores/"
+app.config['SCORES_URL_PREFIX'] = "/static/scores/"
 
 """
 Further Documentation
