@@ -79,7 +79,7 @@ class Playlist(object):
         insert_after = int(insert_after)
         assert insert_after < len(playlist_data)
 
-                insert_point = insert_after + 1
+        insert_point = insert_after + 1
         playlist_data[insert_point:insert_point] = items
 
         with open(self.playlist_filename, "w") as output_file:

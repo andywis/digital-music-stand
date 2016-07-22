@@ -81,8 +81,10 @@ def uploads_listing():
     files = os.listdir(upload_folder)
 
     return render_template('uploads.html',
+                           title="Uploads",
                            prefix=app.config['UPLOAD_URL_PREFIX'],
                            files=files,
+                           # scripts=['bs', 'jq'],
                            debug="")
 
 
@@ -172,6 +174,7 @@ def scores_listing():
 
 
     return render_template('scores.html',
+                           title="Scores",
                            scores_info=scores_info,
                            debug='')
 
@@ -211,6 +214,7 @@ def show_playlist():
                               })
 
     return render_template('playlist.html',
+                           title="Playlist",
                            scores_info=scores_info,
                            playlist_items=playlist_items,
                            debug='')

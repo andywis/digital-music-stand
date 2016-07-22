@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link href="/static/bs/css/bootstrap.min.css" rel="stylesheet">
+        <title>Digital Music Stand{% if title %} :: {{ title }}{% endif %}</title>
+    </head>
+    <body>
+        <!--aa-->
+
+        {% block content %}...{% endblock %}
+        
+        <!--zz-->
+
+        {% if debug %}
+        <div class="container">
+            <pre style="border:none;background:white;">{{ debug }}</pre>
+        </div>
+        {% endif %}
+
+        {# We only need JQ and bootstrap.js for certain elements. 
+           These are activated by passing in the 'scripts' variable
+           from the view. Magic tokens "jq" and "bs" mean JQuery and
+           Bootstrap respectively.
+         #}
+        {% for s in scripts %}
+            {% if s=='jq' %}
+                <script src="/static/jq/jquery-2.2.4.min.js"></script>
+            {% elif s=='bs' %}
+                <script src="/static/bs/js/bootstrap.min.js"></script>
+            {% else %}
+                <script src="/static/{{ s }}"></script>
+            {% endif %}
+        {% endfor %}
+        
+    </body>
+</html>

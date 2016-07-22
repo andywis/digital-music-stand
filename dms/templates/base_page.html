@@ -3,8 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title>Digital Music Stand</title>
+
+        <link href="/static/bs/css/bootstrap.min.css" rel="stylesheet">
 
         {% if next_image %}
         <!-- pre-fetch the image for the next page -->
@@ -83,16 +86,18 @@
 
 {% block full_screen_content %}<hr>{% endblock %}
 
-<div style="position:absolute; top: 0px;right:30px; background-color: white;
+<div style="position:absolute; top: 1px;right:10px; background-color: white;
             font-size:12px;font-weight:bold;font-family:sans-serif;">
-    <a onclick="previousPage();return false;" href="#previous">Prev</a> ||
-    <a href="/uploads">Settings</a> || 
-    <a onclick="nextPage();return false;" href="#next">Next</a>
+    <a onclick="previousPage();return false;" class="btn btn-default btn-sm" href="#previous">Prev</a> 
+    <a href="/uploads" class="btn btn-default btn-sm">Settings</a> 
+    <a onclick="nextPage();return false;" class="btn btn-default btn-sm" href="#next">Next</a>
 </div>
 
-<script>
-            document.body.onkeydown = handleKeyPress;
-</script>
+    {#
+        <script src="/static/jq/jquery-2.2.4.min.js"></script>
+        <script src="/static/bs/js/bootstrap.min.js"></script>
+    #}
+    <script>document.body.onkeydown = handleKeyPress;</script>
 </body>
 </html>
 

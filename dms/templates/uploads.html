@@ -1,27 +1,60 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+{% extends "base_settings.html" %}
+{% block content %}
 
-        <title>Digital Music Stand</title>
+        <div class="container">
+            <div class="container text-center">
+                <h1>Uploaded files</h1>
+            </div>
+            <form method="post" action="/create_score" class="form-horizontal">
+                <p>Here are the files recently uploaded.</p>
 
-    </head>
-    <body>
-        <form method="post" action="/create_score">
-            <p>Here are the files recently uploaded.</p>
-            <ul>
-        	{% for file in files %}
-        		<li><input type="checkbox" name="incl__{{ file }}"><a href="{{ prefix }}{{ file }}">{{ file }}</a></li>
-    	    {% endfor %}
-    		</ul>
-            <hr>
-            <p>Select the image files you want in this score, from the list above (tick to select)</p>
-            <p>Score name: <input type="text" name="score_name"></p>
-            <p><input type="submit" value="Create score"></p>
-        </form>
-        <p><a href="/scores">See scores</a> | <a href="/playlist">See playlist</a></p>
+                <table class="table table-hover table-condensed">
+            	{% for file in files %}
+                    <tr>
+                        <td>
+            		        <input type="checkbox" id="incl__{{ file }}" name="incl__{{ file }}">
+                        </td>
+                        <td>
+                            <label for="incl__{{ file }}">{{ file }}</label>
+                        </td>
+                        <td>
+                            <a href="{{ prefix }}{{ file }}" title="edit">
+                                <span class="glyphicon glyphicon-file" title="view"></span>
+                                View file
+                            </a>
+                        </td>
+                    </tr>
+        	    {% endfor %}
+                </table>
 
-		<pre>{{ debug }}</pre> 
-    </body>
-</html>
+                <div class="form-group">
+                    <label for="score_name" class="col-sm-2 control-label">Score name:</label>
+                    <div class="col-sm-10">
+                        <input type="email" class="form-control" name="score_name" id="score_name">
+                    </div>
+                    <p class="help-block">
+                        Tick the image files you want in this score, from the list above, and enter a name
+                        for this score.
+                    </p>
+                </div>
+
+                <div class="form-group">
+                    {# This was an <input type="submit" value="Create score"> Bootstrap wants a button, 
+                    not an input #}
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <span class="glyphicon glyphicon-music" aria-hidden="true"></span>
+                        Create Score
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <a href="/p/0" class="btn btn-default" role="button">
+                        <span class="glyphicon glyphicon-music" aria-hidden="true"></span> Play</a>
+                    <a href="#/scores" class="btn btn-default disabled" role="button">Upload a file</a>
+                    {# <a href="/uploads" class="btn btn-default" role="button">See uploads</a> #}
+                    <a href="/scores" class="btn btn-default" role="button">See all scores</a>
+                    <a href="/playlist" class="btn btn-default" role="button">See playlist</a>
+                </div>
+            </form>
+        </div>
+{% endblock %}

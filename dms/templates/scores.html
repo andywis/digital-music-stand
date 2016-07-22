@@ -1,25 +1,36 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+{% extends "base_settings.html" %}
+{% block content %}
+        <div class="container">
+            <div class="container text-center">
+                <h1>Available Scores</h1>
+            </div>
 
-        <title>Digital Music Stand</title>
+            <form method="post" action="" class="form-horizontal">
 
-    </head>
-    <body>
-        <form method="post" action="">
-            <p>Available scores.</p>
-            <ul>
-            {% for score in scores_info %}
-                <li>{{ score.name }} ({{ score.num_files_str }}) <a href="#send">ADD</a></li>
-            {% endfor %}
-            </ul>
-            <hr>
-            
-        </form>
-        <p><a href="/uploads">See uploads</a> | <a href="/playlist">See playlist</a></p>
+                <table class="table table-hover table-condensed">
+                {% for score in scores_info %}
+                    <tr>
+                        <td>
+                            <span>{{ score.name }}</span>
+                        </td>
+                        <td>
+                            <span>{{ score.num_files_str }}</span>
+                        </td>
+                        <td>
+                            <a href="#send">ADD</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </table>
 
-        <pre>{{ debug }}</pre> 
-    </body>
-</html>
+                <div class="form-group">
+                    <a href="/p/0" class="btn btn-default" role="button">
+                        <span class="glyphicon glyphicon-music" aria-hidden="true"></span> Play</a>
+                    <a href="#/scores" class="btn btn-default disabled" role="button">Upload a file</a>
+                    <a href="/uploads" class="btn btn-default" role="button">See uploads</a> 
+                    {# <a href="/scores" class="btn btn-default" role="button">See all scores</a> #}
+                    <a href="/playlist" class="btn btn-default" role="button">See playlist</a>
+                </div>
+            </form>
+        </div>
+{% endblock %}

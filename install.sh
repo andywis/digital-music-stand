@@ -51,6 +51,9 @@ cp runserver.py $TARGET/runserver.py
 cp -r dms/* $TARGET/dms
 cp test_dms.py $TARGET/test_dms.py  # optional
 
+# copy the static content
+cp -r static-assets/* $TARGET/dms/static/
+
 # Copy the start script into $HOME
 # Note the ':' as the sed delimiter. Works unless $TARGET has a : in.
 cat start_dms.sh | sed -e "s:{{DMSHOME}}:$TARGET:" > $HOME/start_dms.sh
