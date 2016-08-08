@@ -1,0 +1,42 @@
+{% extends "base_settings.html" %}
+{% block content %}
+        <div class="container">
+            <div class="container text-center">
+                <h1>{{ title }}</h1>
+            </div>
+
+            <form method="post" action="" class="form-horizontal" enctype="multipart/form-data">
+
+                <div class="form-group">
+                    <label for="dd1" class="col-md-2 control-label">File to upload</label>
+                    <div class="col-md-6">
+                        <div class="input-group">
+                            <label class="input-group-btn">
+                                <span class="btn btn-primary">
+                                    Browse&hellip;
+                                    <input type="file" name="fileinp1" style="display: none;">
+                                </span>
+                            </label>
+                            <input type="text" title="" class="form-control" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <span class="glyphicon glyphicon-music" aria-hidden="true"></span>
+                        Upload file
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <a href="/p/0" class="btn btn-default" role="button">
+                        <span class="glyphicon glyphicon-music" aria-hidden="true"></span> Play</a>
+                    {# <a href="/upload" class="btn btn-default d" role="button">Upload a file</a> #}
+                    <a href="/uploads" class="btn btn-default" role="button">See uploads</a> 
+                    <a href="/scores" class="btn btn-default" role="button">See all scores</a>
+                    <a href="/playlist" class="btn btn-default" role="button">See playlist</a>
+                </div>
+            </form>
+        </div>
+{% endblock %}
