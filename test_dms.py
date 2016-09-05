@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 #
 # To run these tests, you need "py.test". This is already installed
 # in the "target" venv.
@@ -7,19 +6,16 @@
 # (1) activate the venv: source $HOME/.dms/digitalmusicstand/venv/bin/activate
 # (2) py.test
 #
-# Some really noddy unit tests; to get us started...
-#
 
 import pytest
 
-import dmslib.DigitalMusicStand
-import dmslib.utils as utils
+import dms.dmslib.DigitalMusicStand
+import dms.dmslib.utils as utils
 
 
 def test_dms_playlist_obj():
     """ Use a test playlist file for testing."""
-    playlist = dmslib.DigitalMusicStand.DMSPlaylist(
-        config_filename="test_data/playlist-1.json")
+    playlist = dms.models.Playlist(filename="dms/test_data/playlist-1.json")
 
     # playlist_data is the right length?
     assert len(playlist.playlist_data) == 4
@@ -52,8 +48,8 @@ def test_delete_row_from_playlist():
     test the functionality to handle deleting an entry from the
     playlist
     """
-    playlist = dmslib.DigitalMusicStand.DMSPlaylist(
-        config_filename="test_data/playlist-1.json")
+    playlist = dms.dmslib.DigitalMusicStand.DMSPlaylist(
+        config_filename="dms/test_data/playlist-1.json")
 
     # make sure the data's as expected.
     assert len(playlist.playlist_data) == 4

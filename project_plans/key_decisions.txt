@@ -2,7 +2,7 @@
 1. Flask
     I wanted to use Python, and Flask or Django seemed like 
     good options. Django seemed a bit heavyweight, and mandates
-    the use of an Apache Front end in production, which isn't
+    the use of an Apache Front-end in production, which isn't
     relevant here, as we intend to only serve to "localhost"
 
 2. Add a score to the playlist as a set of pages

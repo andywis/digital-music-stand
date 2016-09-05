@@ -6,15 +6,16 @@ import urllib
 
 from flask import (Flask, abort, redirect, request, render_template,
                    send_from_directory, url_for)
-import dmslib.DigitalMusicStand
+from werkzeug.utils import secure_filename  # for file uploads
 import dmslib.utils as utils
 
 from dms import app
 import dms.models
 
-# /static/*
+# @app.route('^/static/')
 # No need for a routing rule for static files;
 # it happens automatically
+
 
 @app.route('/')
 def hello_world():
@@ -23,7 +24,7 @@ def hello_world():
 
 @app.route('/p/<int:page_num>')
 def show_page(page_num):
-    playlist = dmslib.DigitalMusicStand.DMSPlaylist()
+    playlist = dms.models.Playlist()
     pdata = playlist.get_page_data(page_num)
 
     requested_page_num = page_num
@@ -65,14 +66,74 @@ def show_page(page_num):
         return render_template('splash-page.html', message=message)
 
 
+@app.route('/upload', methods=['GET', 'POST'])
+def handle_upload():
+    """
+    Display the upload form (GET) and handle file uploads (POST)
+
+    TODO: Redirect back to the upload page on error
+    TODO: 'flash()' a message on error (work out how)
+    TODO: improve the success message appearance. Do we want a 'flash()'
+        message and a redirect to the "uploads" page so you can see it?
+
+    TODO: Each template has duplication for the nav buttons for settings
+        pages. This could be tidied up.
+    TODO: utils.is_allowed_file needs unit tests.
+    """
+    if request.method == 'GET':
+        # Upload form needs some JS (upload_form.js) to render the
+        # prettier file-upload box.
+        return render_template('upload.html',
+                               title="Upload file",
+                               scripts=['bs', 'jq', 'upload_form.js'],
+                               debug='')
+
+    elif request.method == 'POST':
+        debug = "we are in the POST section.\n\n"
+        filename = "_unknown_"
+        form_elt_name = 'fileinp1'
+
+        if form_elt_name not in request.files:
+            # TODO flash('No file part supplied')  # i.e. flash a message
+            debug += "Oops. Could not see the input file field\n\n"
+            # TODO: redirect to the original URL and 'flash'
+            # a message on-screen.
+            # return redirect(request.url)
+
+        fileobj = request.files[form_elt_name]
+        if fileobj:
+            upload_folder = app.config['UPLOAD_FOLDER']
+
+            # un-taint the filename
+            filename = secure_filename(fileobj.filename)
+
+            if not utils.is_allowed_file(filename):
+                # flash('unacceptable file type')
+                debug += "Oops. I can't accept this file type - %s" % filename
+            else:
+                debug += "raw filename = %s\n\n" % fileobj.filename
+
+                # TODO: Check filename does not already exist; if it does,
+                # modify the name.
+                fileobj.save(os.path.join(upload_folder, filename))
+
+        # return a page.
+        # TODO: return to uploads page with a 'flash()' message saying
+        # score_dir created.."
+        return render_template('file_uploaded.html',
+                               file_name=filename,
+                               debug=debug)
+
+
 @app.route('/uploads')
 def uploads_listing():
     """ Directory listing for the uploads folder
     See http://stackoverflow.com/a/23724948/6097907
+
+    TODO: a Delete button on the uploads page would be useful.
     """
     upload_folder = app.config['UPLOAD_FOLDER']
 
-    # Return 404 if path doesn't exist
     if not os.path.exists(upload_folder):
         return abort(404)
     if os.path.isfile(upload_folder):
@@ -101,6 +162,8 @@ def create_score_from_uploads():
     """ Handle the response from the "/uploads" form, creating
     a new "score"
 
+    TODO: This page needs styling.
+
     TODO: detect that the user entered a score_dir that's already
     been used, and report a more user-friendly message.
 
@@ -121,32 +184,33 @@ def create_score_from_uploads():
         try:
             os.mkdir(os.path.join(app.config['SCORES_FOLDER'], score_dir))
         except OSError:
-            # if the dir exists, complain
-            # TODO: complain in a more meaningful way
+            # TODO: if the dir already exists, complain in a more useful way
             return abort(500)
 
         # move the files.
         #    TODO: Exception handling
         utils.move_uploads_to_score_dir(
-            files_to_upload, 
-            old_folder=app.config['UPLOAD_FOLDER'], 
+            files_to_upload,
+            old_folder=app.config['UPLOAD_FOLDER'],
             new_folder=os.path.join(app.config['SCORES_FOLDER'], score_dir))
-       
 
         metadata = {
             "score_name": score_name,
             "score_dir": score_dir,
             "files": files_to_upload,  # a list.
         }
-        metadata_file = os.path.join(app.config['SCORES_FOLDER'], score_dir, "metadata.json")
+        metadata_file = os.path.join(app.config['SCORES_FOLDER'], score_dir,
+                                     "metadata.json")
         with open(metadata_file, "w") as output_file:
             json.dump(metadata, output_file, indent=4)
 
         # TODO: test the modules in utils.
 
-        # TODO: return to uploads page with a message saying score_dir created.."
+        # TODO: return to uploads page with a message saying
+        # score_dir created.."
         return render_template('score_created.html',
-                               prefix=app.config['SCORES_URL_PREFIX'] + '/' + score_dir + "/",
+                               prefix=app.config['SCORES_URL_PREFIX'] + '/' +
+                               score_dir + "/",
                                files=files_to_upload,
                                score_name=score_name,
                                score_dir=score_dir,
@@ -154,36 +218,36 @@ def create_score_from_uploads():
 
     # else: what do we show on 'GET'?
 
+
 @app.route('/scores')
 def scores_listing():
     """ Directory listing for the scores folder
     """
-    # Return 404 if path doesn't exist
     if not dms.models.Score.scores_folder_exists():
         return abort(404)
-    
+
     scores_info = []
     scores = dms.models.Score.get_all_scores(perform_integrity_checks=True)
-    print("%r" % scores)
     for score in scores:
-        print type(score)
         scores_info.append(
-            {"name": score.name, 
+            {"name": score.name,
              "num_files": score.num_files,
-             "num_files_str": utils.pluralise("%d file", "%d files", score.num_files)})
-
+             "num_files_str": utils.pluralise("%d file", "%d files",
+                                              score.num_files)})
 
     return render_template('scores.html',
                            title="Scores",
                            scores_info=scores_info,
                            debug='')
 
+
 @app.route('/playlist', methods=['GET'])
 def show_playlist():
-    """ Show the current playlist in an editor """
+    """
+    Show the current playlist in an editor
+    """
     scores_folder = dms.models.Score.get_scores_folder()
 
-    # Return 404 if path doesn't exist
     if not dms.models.Score.scores_folder_exists():
         return abort(404)
 
@@ -194,24 +258,26 @@ def show_playlist():
     scores = dms.models.Score.get_all_scores(perform_integrity_checks=True)
     for score in scores:
         size_str = utils.pluralise("%d page", "%d pages", score.num_files)
-        scores_info.append({'dir': score.folder_name, 
+        scores_info.append({'dir': score.folder_name,
                             'name': score.name,
                             'size_str': size_str})
 
     # List the items in the current playlist
-    playlist = dmslib.DigitalMusicStand.DMSPlaylist()
+    playlist = dms.models.Playlist()
     playlist_items = []
     for i in range(0, playlist.get_last_page_number()+1):
         data = playlist.get_page_data(i)
         playlist_items.append({'id': i,
-                               'path': urllib.quote(data['path']),  # TODO: urlencode
+                               # TODO: urlencode path
+                               'path': urllib.quote(data['path']),
                                'type': data['type'],
                                'name': data['name'],
-                               # TODO: playlist items need the score name or dir recorded, 
+                               # TODO: playlist items need the score name or
+                               #    dir recorded,
                                # TODO: add the page number of the score.
-                               #    e.g. "Brother CYSMAD (2 pages)" instead of "Brother (image)"
-                
-                              })
+                               #    e.g. "Score-name (2 pages)" instead of
+                               #    "Score-name (image)"
+                               })
 
     return render_template('playlist.html',
                            title="Playlist",
@@ -226,6 +292,10 @@ def edit_playlist():
 
     GET with action=delete & id=NNNN will delete item NNNN
     POST with suitable parameters will insert.
+
+    TODO: A successful POST (Add to playlist) results in a poorly
+        styled page. Should redirect to the playlist page with a
+        flash message.
     """
 
     if request.method == 'GET':
@@ -233,7 +303,7 @@ def edit_playlist():
         if action and action == "delete":
             # Handle delete of a playlist row.
             row_id = request.args.get('id')
-            playlist = dmslib.DigitalMusicStand.DMSPlaylist()
+            playlist = dms.models.Playlist()
             playlist.delete_item(row_id, return_json=False, save=True)
 
             return redirect(url_for('show_playlist'))
@@ -242,10 +312,6 @@ def edit_playlist():
 
     if request.method == 'POST':
         # Handle the post data; insert a score into the playlist.
-        # [Y] work out which score to insert
-        # [Y] turn the score into a list of images
-        # [Y] Turn each image into a playlist entry (we now have a method for that)
-        # [] TODO: add the playlist entries to the playlist, in the correct place
         # [] TODO: Test all the above with a score with 2 or 3 pages.
 
         debug_html = "<body>"
@@ -253,13 +319,15 @@ def edit_playlist():
         playlist = dms.models.Playlist()
         items = []
 
-        # TODO: ensure request.form['insert_after'] is an integer and is in range.
-        
-        # Find all the images to be copied, given a Score_dir called "to_insert"
+        # TODO: ensure request.form['insert_after'] is an integer and is
+        # in range.
+
+        # Find all the images to be copied, given a Score_dir called
+        # "to_insert"
         score_to_insert = dms.models.Score.get_score_by_folder_name(
             request.form['to_insert'])
         num_images = score_to_insert.num_files
-        
+
         # print "epl_1"
         # print "%r" % score_to_insert.files
         # print "%r" % enumerate(score_to_insert.files)
@@ -271,9 +339,9 @@ def edit_playlist():
                 image_name = score_to_insert.name
 
             full_img_url = score_to_insert.url_prefix + "/" + image
-                
+
             debug_html += "{type:image, path: %s, css:'x', name: %s}<br>" % (
-                score_to_insert.url_prefix + "/" + image, 
+                score_to_insert.url_prefix + "/" + image,
                 image_name)
 
             item = playlist.create_playlist_item(
@@ -286,9 +354,11 @@ def edit_playlist():
         playlist.add_items_to_playlist(items, request.form['insert_after'])
 
         # score name is POST['to_insert']
-        # location is POST['insert_after'] (an integer) -1 means the start. 0 = after 1st element.
+        # location is POST['insert_after'] (an integer) -1 means the start.
+        # 0 = after 1st element.
         debug_html += "<br>"
         for field in ["to_insert", "insert_after"]:
-            debug_html += "POST {!r} = {!r}<br>".format(field, request.form[field])
+            debug_html += "POST {!r} = {!r}<br>".format(field,
+                                                        request.form[field])
 
         return debug_html
