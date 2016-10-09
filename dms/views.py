@@ -4,7 +4,7 @@ import os
 import re
 import urllib
 
-from flask import (Flask, abort, redirect, request, render_template,
+from flask import (Flask, abort, flash, redirect, request, render_template,
                    send_from_directory, url_for)
 from werkzeug.utils import secure_filename  # for file uploads
 import dmslib.utils as utils
@@ -70,15 +70,6 @@ def show_page(page_num):
 def handle_upload():
     """
     Display the upload form (GET) and handle file uploads (POST)
-
-    TODO: Redirect back to the upload page on error
-    TODO: 'flash()' a message on error (work out how)
-    TODO: improve the success message appearance. Do we want a 'flash()'
-        message and a redirect to the "uploads" page so you can see it?
-
-    TODO: Each template has duplication for the nav buttons for settings
-        pages. This could be tidied up.
-    TODO: utils.is_allowed_file needs unit tests.
     """
     if request.method == 'GET':
         # Upload form needs some JS (upload_form.js) to render the
@@ -94,35 +85,35 @@ def handle_upload():
         form_elt_name = 'fileinp1'
 
         if form_elt_name not in request.files:
-            # TODO flash('No file part supplied')  # i.e. flash a message
-            debug += "Oops. Could not see the input file field\n\n"
-            # TODO: redirect to the original URL and 'flash'
-            # a message on-screen.
-            # return redirect(request.url)
+            flash("Oops. Could not see the input file field", 'danger')
+            return redirect(request.url)
 
         fileobj = request.files[form_elt_name]
-        if fileobj:
-            upload_folder = app.config['UPLOAD_FOLDER']
+        if not fileobj:
+            flash('Oops. You need to specify a file!', 'danger')
+            return redirect(request.url)
 
-            # un-taint the filename
-            filename = secure_filename(fileobj.filename)
+        upload_folder = app.config['UPLOAD_FOLDER']
 
-            if not utils.is_allowed_file(filename):
-                # flash('unacceptable file type')
-                debug += "Oops. I can't accept this file type - %s" % filename
-            else:
-                debug += "raw filename = %s\n\n" % fileobj.filename
+        # un-taint the filename
+        filename = secure_filename(fileobj.filename)
 
-                # TODO: Check filename does not already exist; if it does,
-                # modify the name.
-                fileobj.save(os.path.join(upload_folder, filename))
+        if not utils.is_allowed_file(filename):
+            flash("Sorry. I can't upload this type of file.", 'danger')
+            return redirect(request.url)
+        else:
+            debug += "raw filename = %s\n\n" % fileobj.filename
 
-        # return a page.
-        # TODO: return to uploads page with a 'flash()' message saying
-        # score_dir created.."
-        return render_template('file_uploaded.html',
-                               file_name=filename,
-                               debug=debug)
+            # TODO: Check filename does not already exist; if it does,
+            # modify the name.
+            fileobj.save(os.path.join(upload_folder, filename))
+            flash(
+                "File {0} was successfully uploaded.".format(filename),
+                'success')
+
+        # return to uploads page with a 'flash()' message saying
+        return redirect(url_for('uploads_listing'))
+       
 
 
 @app.route('/uploads')
@@ -131,6 +122,8 @@ def uploads_listing():
     See http://stackoverflow.com/a/23724948/6097907
 
     TODO: a Delete button on the uploads page would be useful.
+          Meanwhile, just delete the file from
+          $HOME/.dms/digitalmusicstand/dms/static/uploads/
     """
     upload_folder = app.config['UPLOAD_FOLDER']
 

@@ -2,6 +2,7 @@
 
 from flask import Flask
 app = Flask(__name__)
+app.secret_key = '1e7ef89dccf05e829a88ca4a8db7f0dca2f2580f7e9e96e0d1bc5d0dd5a'
 
 import dms.views
 

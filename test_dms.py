@@ -9,7 +9,7 @@
 
 import pytest
 
-import dms.dmslib.DigitalMusicStand
+import dms.models
 import dms.dmslib.utils as utils
 
 
@@ -48,8 +48,7 @@ def test_delete_row_from_playlist():
     test the functionality to handle deleting an entry from the
     playlist
     """
-    playlist = dms.dmslib.DigitalMusicStand.DMSPlaylist(
-        config_filename="dms/test_data/playlist-1.json")
+    playlist = dms.models.Playlist(filename="dms/test_data/playlist-1.json")
 
     # make sure the data's as expected.
     assert len(playlist.playlist_data) == 4
@@ -74,3 +73,14 @@ def test_pluralise():
 
     assert utils.pluralise("%d child", "%d children", 2) == "2 children"
     assert utils.pluralise("%d child", "%d children", 2) != "2 childs"
+
+def test_is_allowed_filename():
+    assert utils.is_allowed_file("example.gif") == True
+    assert utils.is_allowed_file("example.jpg") == True
+    assert utils.is_allowed_file("example.png") == True
+
+    # we haven't implemented PDF upload yet
+    assert utils.is_allowed_file("example.pdf") == False
+
+    # no extension
+    assert utils.is_allowed_file("_unknown_") == False
