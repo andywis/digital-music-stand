@@ -6,25 +6,50 @@ import os
 from dms import app as APP
 
 
+class PlaylistFileMissingException(BaseException):
+    pass
+
+
 class Playlist(object):
     """ An object that represents a playlist.
     A playlist is an ordered collection of pages
     of music.
     """
-    def __init__(self, filename=None):
-        """ instantiate a Playlist, including loading data from JSON"""
+    def __init__(self, filename=None, force_create_if_absent=False):
+        """ instantiate a Playlist, including loading data from JSON
+
+        If the playlist file does not exist, we can do one of two
+        things: either create it if force_create_if_absent is set 
+        to True. Otherwise, we raise a PlaylistFileMissingException.
+        """
 
         # Normally lives in config/active_playlist.json
-        if filename:
-            assert os.path.exists(filename)
-        else:
-            filename = os.path.join(
-                os.path.dirname(os.path.abspath(__file__)),
-                "config", "active_playlist.json")
+        if not filename:
+            #filename = os.path.join(
+            #    os.path.dirname(os.path.abspath(__file__)),
+            #    "config", "active_playlist.json")
+            filename = Playlist.get_default_playlist_filename()
+
         self.playlist_filename = filename
+
+        if not os.path.exists(filename):
+            if force_create_if_absent:
+                playlist_data = []
+                with open(filename, "w") as output_file:
+                    json.dump(playlist_data, output_file, indent=4)
+            else:
+                raise PlaylistFileMissingException()
 
         with open(self.playlist_filename, "r") as playlist_file:
             self.playlist_data = json.load(playlist_file)
+
+
+    @classmethod
+    def get_default_playlist_filename(cls):
+        return os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            "config", "active_playlist.json")
+
 
     def get_page_data(self, page_num):
         """
@@ -40,12 +65,13 @@ class Playlist(object):
             and the path is a reference to a file or URL
         """
         if page_num < 0 or page_num >= len(self.playlist_data):
-            return {'type': None, 'path': None}
+            return {'type': None, 'path': None, 'num_pages': len(self.playlist_data)}
         item = self.playlist_data[page_num]
         return {'type': item['type'],
                 'path': item['path'],
                 'css_style': item.get('css', ''),
                 'name': item['name'],
+                'num_pages': len(self.playlist_data),
                 }
 
     def get_last_page_number(self):

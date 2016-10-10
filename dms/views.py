@@ -24,8 +24,22 @@ def hello_world():
 
 @app.route('/p/<int:page_num>')
 def show_page(page_num):
-    playlist = dms.models.Playlist()
+    try:
+        playlist = dms.models.Playlist()
+    except dms.models.PlaylistFileMissingException:
+        # If we don't have a playlist, send the user
+        # to go make one.
+        flash("WARNING: You don't have a playlist. Upload some files "
+              "and create one.", 'warning')
+        return redirect(url_for('uploads_listing'))
+
     pdata = playlist.get_page_data(page_num)
+
+    if pdata['num_pages'] == 0:
+        # Empty playlist
+        flash("WARNING: Your playlist is empty. Please and add "
+              "something.", 'warning')
+        return redirect(url_for('show_playlist'))
 
     requested_page_num = page_num
     previous_page_num = max(page_num - 1, 0)
@@ -111,7 +125,7 @@ def handle_upload():
                 "File {0} was successfully uploaded.".format(filename),
                 'success')
 
-        # return to uploads page with a 'flash()' message saying
+        # return to uploads page with a 'flash()' message
         return redirect(url_for('uploads_listing'))
        
 
@@ -256,7 +270,9 @@ def show_playlist():
                             'size_str': size_str})
 
     # List the items in the current playlist
-    playlist = dms.models.Playlist()
+    playlist = dms.models.Playlist(force_create_if_absent=True)
+    
+
     playlist_items = []
     for i in range(0, playlist.get_last_page_number()+1):
         data = playlist.get_page_data(i)
@@ -307,8 +323,6 @@ def edit_playlist():
         # Handle the post data; insert a score into the playlist.
         # [] TODO: Test all the above with a score with 2 or 3 pages.
 
-        debug_html = "<body>"
-
         playlist = dms.models.Playlist()
         items = []
 
@@ -333,25 +347,16 @@ def edit_playlist():
 
             full_img_url = score_to_insert.url_prefix + "/" + image
 
-            debug_html += "{type:image, path: %s, css:'x', name: %s}<br>" % (
-                score_to_insert.url_prefix + "/" + image,
-                image_name)
-
             item = playlist.create_playlist_item(
                 img_url=full_img_url, label=image_name)
-
-            debug_html += "<br>" + repr(item) + "<br>"
 
             items.append(item)
 
         playlist.add_items_to_playlist(items, request.form['insert_after'])
 
-        # score name is POST['to_insert']
-        # location is POST['insert_after'] (an integer) -1 means the start.
-        # 0 = after 1st element.
-        debug_html += "<br>"
-        for field in ["to_insert", "insert_after"]:
-            debug_html += "POST {!r} = {!r}<br>".format(field,
-                                                        request.form[field])
-
-        return debug_html
+        # 'insert_after' is zero-based and listed that way on /playlist
+        flash('Score {!s} inserted after item number {}'.format(
+                request.form['to_insert'], 
+                request.form['insert_after']),
+            'success')
+        return redirect(url_for('show_playlist'))
