@@ -169,12 +169,12 @@ def create_score_from_uploads():
     """ Handle the response from the "/uploads" form, creating
     a new "score"
 
-    TODO: This page needs styling.
-
     TODO: detect that the user entered a score_dir that's already
     been used, and report a more user-friendly message.
 
     TODO: use models.Score to create the metadata.
+
+    TODO: missing "title:" should redirect back to the /uploads page.
     """
     # ensure app.config['SCORES_FOLDER'] exists. (should be
     # created by the installer)
@@ -212,9 +212,6 @@ def create_score_from_uploads():
             json.dump(metadata, output_file, indent=4)
 
         # TODO: test the modules in utils.
-
-        # TODO: return to uploads page with a message saying
-        # score_dir created.."
         return render_template('score_created.html',
                                prefix=app.config['SCORES_URL_PREFIX'] + '/' +
                                score_dir + "/",
