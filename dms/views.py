@@ -31,7 +31,7 @@ def show_page(page_num):
         # to go make one.
         flash("WARNING: You don't have a playlist. Upload some files "
               "and create one.", 'warning')
-        return redirect(url_for('uploads_listing'))
+        return redirect(url_for('handle_upload'))
 
     pdata = playlist.get_page_data(page_num)
 

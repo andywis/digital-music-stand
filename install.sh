@@ -33,6 +33,7 @@ then
     cd $TARGET
 	virtualenv venv
     . $TARGET/venv/bin/activate
+    pip install --upgrade pip
     pip install -r $TARGET/pip_requirements.txt
     rm $TARGET/pip_requirements.txt
     cd $where_was_i
