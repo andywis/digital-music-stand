@@ -98,7 +98,7 @@ class Playlist(object):
             "comment": "this is a comment",
             "type": "image",
             "path": img_url,
-            "css": "max-width: 70%; display: block; margin: 0 auto",
+            "css": "display: block; margin: 0 auto",
             "name": label,
         }
 
