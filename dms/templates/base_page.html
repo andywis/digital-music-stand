@@ -51,6 +51,8 @@
                 leftCodes.push(192);  // backtick
             }
             // ignoredCodes = [ 16, 17, 93 ]      // SHIFT CTRL CONTEXT
+
+            passThrus = [122]  // F11 for full screen
             // ----------------------------------------------------------------
 
             // Polyfilla for MSIE event handlers
@@ -61,10 +63,18 @@
             var code = (typeof event.which == "number") ? event.which : event.keyCode;
             var typedChar = String.fromCharCode(code);
 
+            // console.log("code="+code)
+
             if (leftKeys.indexOf(typedChar) !== -1 || leftCodes.indexOf(code) !== -1) {
                 previousPage();
             } else if (rightKeys.indexOf(typedChar) !== -1 || rightCodes.indexOf(code) !== -1) {
                 nextPage();    
+            }
+
+            // We want some keys to bubble up to the next key handler,
+            // particularly F11, so we can make the browser full-screen
+            if (passThrus.indexOf(code) !== -1) {
+                return true
             }
             return false;
         };
