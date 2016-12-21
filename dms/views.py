@@ -33,7 +33,7 @@ def show_page(page_num):
               "and create one.", 'warning')
         return redirect(url_for('handle_upload'))
 
-    pdata = playlist.get_page_data(page_num)
+    pdata = playlist.get_page_data(page_num, request.args)
 
     if pdata['num_pages'] == 0:
         # Empty playlist

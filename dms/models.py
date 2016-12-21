@@ -51,13 +51,14 @@ class Playlist(object):
             "config", "active_playlist.json")
 
 
-    def get_page_data(self, page_num):
+    def get_page_data(self, page_num, qsargs):
         """
         Obtain the data about a page in the playlist.
 
         Args:
             page_num (int): the number of the page being requested, this
                 being a zero-based index into the playlist_data array
+            qsargs (object) The Query String, in the format from 'requests'
 
         Returns:
             a dict with {'type': '...', 'path': '...'}
@@ -67,9 +68,15 @@ class Playlist(object):
         if page_num < 0 or page_num >= len(self.playlist_data):
             return {'type': None, 'path': None, 'num_pages': len(self.playlist_data)}
         item = self.playlist_data[page_num]
+        css = item.get('css', '')
+        if css and qsargs.get('lastpageheight'):
+            if css[-1] != ";":
+                css += ";"
+            css += ";height: %dpx" % int(qsargs.get('lastpageheight'))
+
         return {'type': item['type'],
                 'path': item['path'],
-                'css_style': item.get('css', ''),
+                'css_style': css,
                 'name': item['name'],
                 'num_pages': len(self.playlist_data),
                 }

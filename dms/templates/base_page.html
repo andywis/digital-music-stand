@@ -16,7 +16,17 @@
 
         <script>
 
-        handleKeyPress= function(event) {
+        getWindowSize = function () {
+            var w = window,
+            d = document,
+            e = d.documentElement,
+            g = d.getElementsByTagName('body')[0],
+            x = w.innerWidth || e.clientWidth || g.clientWidth,
+            y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+            return {"x": x, "y":y};
+        }
+
+        handleKeyPress = function(event) {
             // en_GB keyboard. Gap at 6,Y,G,H,B,N.
             // space is also considered a "key that moves you right"
             // arrow keys also do left and right as expected.
@@ -60,10 +70,10 @@
         };
 
         previousPage = function() {
-            location.href="/p/{{prev}}";
+            location.href="/p/{{prev}}?lastpageheight=" + getWindowSize().y;
         }
         nextPage = function() {
-            location.href="/p/{{next}}";
+            location.href="/p/{{next}}?lastpageheight=" + getWindowSize().y;
         }
         </script>
 
