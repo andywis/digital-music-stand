@@ -2,8 +2,8 @@ Digital Music Stand
 
 To install, type "install.sh"
 
-To run, type "~/start_dms.sh". This will start the app and launch a browser
-to display it.
+To run, Open a terminal window and type "~/start_dms.sh". 
+This will start the app and launch a browser to display it.
 
 Then follow the instructions to upload scores and create a playlist.
 
