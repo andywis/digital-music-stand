@@ -51,7 +51,7 @@ class Playlist(object):
             "config", "active_playlist.json")
 
 
-    def get_page_data(self, page_num, qsargs):
+    def get_page_data(self, page_num, qsargs=None):
         """
         Obtain the data about a page in the playlist.
 
@@ -59,6 +59,8 @@ class Playlist(object):
             page_num (int): the number of the page being requested, this
                 being a zero-based index into the playlist_data array
             qsargs (object) The Query String, in the format from 'requests'
+                default is None, which will not provide the correct
+                CSS.
 
         Returns:
             a dict with {'type': '...', 'path': '...'}
@@ -69,7 +71,7 @@ class Playlist(object):
             return {'type': None, 'path': None, 'num_pages': len(self.playlist_data)}
         item = self.playlist_data[page_num]
         css = item.get('css', '')
-        if css and qsargs.get('lastpageheight'):
+        if css and qsargs and qsargs.get('lastpageheight'):
             if css[-1] != ";":
                 css += ";"
             css += ";height: %dpx" % int(qsargs.get('lastpageheight'))
