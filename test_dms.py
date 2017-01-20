@@ -30,12 +30,15 @@ def test_dms_playlist_obj():
 
     # request for a page outside len(playlist_data) should
     # return a dict with None values
-    assert playlist.get_page_data(99) == {'type': None, 'path': None}
+    assert playlist.get_page_data(99) == {'num_pages': 4, 'type': None, 'path': None}
 
     # Page numbers are zero-based.
     assert playlist.get_last_page_number() == 3
 
     assert playlist.get_image_for_page(1) == "second_entry.png"
+
+    # web page items aren't officially supported any more, 
+    # but it shows get_image_for_page copes with different data.
     assert playlist.get_image_for_page(3) is None  # a web page item
 
     with pytest.raises(IndexError):
@@ -58,7 +61,7 @@ def test_delete_row_from_playlist():
 
     assert result[0]['path'] == "first_entry.png"
     assert result[1]['path'] == "third_entry.png"
-    assert result[2]['path'] == "http://www.example.com/fourth_entry.html"
+    assert result[2]['path'] == "fourth_entry.html"
 
 
 def test_get_safe_name():

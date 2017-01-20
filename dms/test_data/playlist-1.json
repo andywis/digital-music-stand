@@ -15,8 +15,8 @@
      "css": "color: yellow",
      "name": "Happy Birthday"},
 
-    {"_Comment_": "Last item is a web page. ",
+    {"_Comment_": "Last item is a web page. Deprecated",
      "type": "webpage",
-     "path": "http://www.example.com/fourth_entry.html"}
+     "path": "fourth_entry.html"}
 
 ]

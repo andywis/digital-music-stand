@@ -64,7 +64,7 @@ class Playlist(object):
 
         Returns:
             a dict with {'type': '...', 'path': '...'}
-            where type is "image" or "webpage"
+            where type is "image" (no other types are currently supported)
             and the path is a reference to a file or URL
         """
         if page_num < 0 or page_num >= len(self.playlist_data):
